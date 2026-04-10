@@ -3,7 +3,6 @@
 case "$1" in
     start)
         mkdir -p /var/www
-        /usr/bin/scrapper
         /usr/bin/monitor &
         ;;
     stop)
