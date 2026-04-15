@@ -62,15 +62,25 @@ void print_idle() {
 
 //data e hora
 
-#include <time.h>
-
 void print_datetime() {
-    time_t t = time(NULL);
-    struct tm *tm_info = localtime(&t);
-    char buffer[64];
+    FILE *fp = fopen("/proc/driver/rtc", "r");
+    char line[256];
+    char date[64] = "";
+    char time[64] = "";
 
-    strftime(buffer, sizeof(buffer), "%d/%m/%Y %H:%M:%S", tm_info);
-    printf("<p><b>Data/Hora:</b> %s</p>", buffer);
+    if (fp) {
+        while (fgets(line, sizeof(line), fp)) {
+            if (strncmp(line, "rtc_date", 8) == 0) {
+                sscanf(line, "rtc_date : %s", date);
+            }
+            if (strncmp(line, "rtc_time", 8) == 0) {
+                sscanf(line, "rtc_time : %s", time);
+            }
+        }
+        fclose(fp);
+
+        printf("<p><b>Data/Hora:</b> %s %s</p>", date, time);
+    }
 }
 
 //cpu modelo e nucleos
@@ -212,7 +222,7 @@ int main(void) {
     
     
 
-    printf("</body></html>");
+    
     
     print_version();
 	print_uptime();
@@ -227,5 +237,7 @@ int main(void) {
 	print_devices();
 	print_net();
 	print_processes();
+    
+    printf("</body></html>");
     return 0;
 }
